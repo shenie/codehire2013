@@ -65,32 +65,28 @@ class Finale
     
 #### answer below
 
-  elevators = []
-  input().first.split(',').each_with_index do |floor, id|
-    elevators << Elevator.new(id, floor)
-  end
+inputs = input().split("\n")
+elevators = []
+inputs.first.split(',').each_with_index do |floor, id|
+  elevators << Elevator.new(id, floor)
+end
 
-  requests = []
-  input().last.split(";").each_with_index do |str, idx|
-    (floor, wait_time) = str.split(',')
-    requests << Request.new(idx, floor, wait_time)
-  end
+requests = []
+inputs.last.split(";").each_with_index do |str, idx|
+  (floor, wait_time) = str.split(',')
+  requests << Request.new(idx, floor, wait_time)
+end
 
-  requests.sort.each do |request|
-    available_elevators = elevators.find_all { |e| e.available? }
-    available_elevators.each { |e| debug "req to_floor=#{request.to_floor} wait #{request.wait_time} e=#{e.id} e-floor=#{e.floor}}"}
+requests.sort.each do |request|
+  available_elevators = elevators.find_all { |e| e.available? }
 
-    available_elevators_by_distance = available_elevators.map { |e| [e.distance_to(request.to_floor), e] }.sort
-    available_elevators_by_distance.each {|pair| debug "dist=#{pair.first} e.id=#{pair.last.id} e.floor=#{pair.last.floor}"}
+  available_elevators_by_distance = available_elevators.map { |e| [e.distance_to(request.to_floor), e] }.sort
+  next_available_elevator = available_elevators_by_distance.first.last
 
-    next_available_elevator = available_elevators_by_distance.first.last
-    # next_available_elevator = available_elevators_by_distance.find { |(dist, e)| dist != 0 }.last
-    debug "found e #{next_available_elevator.id}"
+  request.service_by next_available_elevator
+end
 
-    request.service_by next_available_elevator
-  end
-
-  output << requests.map { |r| r.elevator.id }.join(',')
+output << requests.map { |r| r.elevator.id }.join(',')
 
 #### answer above
 
